@@ -36,7 +36,7 @@ const FeaturedTours: React.FC = () => {
               className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
               style={{
                 animation: inView ? 'fadeIn 0.5s ease-out forwards' : 'none',
-                animationDelay: inView ? \`\${index * 150}ms\` : '0ms'
+                animationDelay: inView ? `${index * 150}ms` : '0ms'
               }}
             >
               <div className="relative overflow-hidden h-64">
