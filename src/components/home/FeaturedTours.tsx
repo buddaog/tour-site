@@ -18,7 +18,7 @@ const FeaturedTours: React.FC = () => {
     <section className="py-20 bg-neutral-50">
       <div
         ref={ref}
-        className={\`container mx-auto px-4 transition-all duration-1000 ease-out \${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}\`}
+        className={`container mx-auto px-4 transition-all duration-1000 ease-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
       >
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-heading text-primary-900">
