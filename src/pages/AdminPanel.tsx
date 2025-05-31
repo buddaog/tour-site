@@ -1,34 +1,41 @@
-
 import React, { useEffect, useState } from 'react';
-import { availability } from '../data/availability';
+
+interface Registration {
+  id: number;
+  name: string;
+  surname: string;
+  phone: string;
+  direction: string;
+  people: number;
+  date: string;
+  comment: string;
+}
+
+interface DirectionControl {
+  direction: string;
+  date: string;
+  available: boolean;
+}
 
 const AdminPanel: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [dateControls, setDateControls] = useState<{ direction: string; date: string; available: boolean }[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [controls, setControls] = useState<DirectionControl[]>([]);
 
+  const storedControls = localStorage.getItem('directionControls');
   useEffect(() => {
-    const list = Object.entries(availability).map(([key, value]) => {
-      const direction = key.charAt(0);
-      const date = key.slice(1);
-      return { direction, date, available: value };
-    });
-    setDateControls(list);
+    const regData = localStorage.getItem('registrations');
+    if (regData) {
+      setRegistrations(JSON.parse(regData));
+    }
+    if (storedControls) {
+      setControls(JSON.parse(storedControls));
+    }
   }, []);
 
-  const toggleAvailability = (direction: string, date: string) => {
-    const key = direction + date;
-    availability[key] = !availability[key];
-    setDateControls(prev =>
-      prev.map(dc =>
-        dc.direction === direction && dc.date === date ? { ...dc, available: !dc.available } : dc
-      )
-    );
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = () => {
     if (username === 'lunar' && password === 'LifeP579518660') {
       setLoggedIn(true);
     } else {
@@ -36,53 +43,75 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  if (!loggedIn) {
-    return (
-      <div className="max-w-sm mx-auto mt-32 p-6 bg-white shadow rounded-xl">
-        <h2 className="text-xl font-bold mb-4 text-center">Вход в админпанель</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+  const toggleAvailability = (direction: string, date: string) => {
+    const updated = controls.map((item) =>
+      item.direction === direction && item.date === date
+        ? { ...item, available: !item.available }
+        : item
+    );
+    setControls(updated);
+    localStorage.setItem('directionControls', JSON.stringify(updated));
+  };
+
+  return (
+    <div className="p-6">
+      {!loggedIn ? (
+        <div className="max-w-xs mx-auto space-y-4">
           <input
             type="text"
-            placeholder="Логин"
+            placeholder="Login"
             value={username}
-            onChange={e => setUsername(e.target.value)}
-            className="w-full border p-2 rounded"
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full p-2 border rounded"
           />
           <input
             type="password"
-            placeholder="Пароль"
+            placeholder="Password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full border p-2 rounded"
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded"
           />
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-500 text-white py-2 rounded"
+          >
             Войти
           </button>
-        </form>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Админпанель</h1>
-
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Управление доступностью</h2>
-        <div className="space-y-4">
-          {dateControls.map(dc => (
-            <div key={dc.direction + dc.date} className="flex items-center justify-between border p-4 rounded bg-white shadow-sm">
-              <span>{dc.direction} — {dc.date}</span>
-              <button
-                onClick={() => toggleAvailability(dc.direction, dc.date)}
-                className={\`px-4 py-1 rounded font-medium text-white \${dc.available ? 'bg-green-500' : 'bg-red-500'}\`}
-              >
-                {dc.available ? 'Открыто' : 'Закрыто'}
-              </button>
-            </div>
-          ))}
         </div>
-      </section>
+      ) : (
+        <div>
+          <h1 className="text-xl font-bold mb-4">Заявки</h1>
+          <div className="space-y-2 mb-6">
+            {registrations.map((reg) => (
+              <div key={reg.id} className="border p-4 rounded bg-white">
+                <p><strong>Имя:</strong> {reg.name} {reg.surname}</p>
+                <p><strong>Номер:</strong> {reg.phone}</p>
+                <p><strong>Направление:</strong> {reg.direction}</p>
+                <p><strong>Дата:</strong> {reg.date}</p>
+                <p><strong>Людей:</strong> {reg.people}</p>
+                <p><strong>Комментарий:</strong> {reg.comment}</p>
+              </div>
+            ))}
+          </div>
+
+          <h2 className="text-lg font-semibold mb-2">Ограничения по датам</h2>
+          <div className="space-y-2">
+            {controls.map((dc, i) => (
+              <div key={i} className="flex justify-between items-center border p-2 rounded">
+                <div>
+                  <strong>{dc.direction}</strong> — {dc.date}
+                </div>
+                <button
+                  onClick={() => toggleAvailability(dc.direction, dc.date)}
+                  className={`px-4 py-1 rounded font-medium text-white ${dc.available ? 'bg-green-500' : 'bg-red-500'}`}
+                >
+                  {dc.available ? 'Открыто' : 'Закрыто'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
