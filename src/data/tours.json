@@ -1,0 +1,13 @@
+[
+  {
+    "id": "tour1",
+    "title": "Qiz Qalasi Tour",
+    "price": 250000,
+    "description": "Explore the ancient fortress of Qiz Qalasi.",
+    "availableDates": [
+      "2025-06-05",
+      "2025-06-07"
+    ],
+    "maxPeople": 15
+  }
+]
